@@ -64,9 +64,9 @@ iris_sav <- import(file = paste0(data_in, "/iris.sav"))
 kable(head(iris_sav)) %>%
   kable_styling(full_width = F)
 
-# export to sav file with pipline
+# Export to sav file with pipeline
 iris_sav %>%
-  filter(Species == 1) %>%
+  filter(Species == "setosa") %>%
   export(paste0(data_out, "/virginica.sav"))
 
 ```
