@@ -1,0 +1,134 @@
+---
+title: "Rio package demo"
+subtitle: "Coding 1"
+author: "Viktória Kónya"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+
+  prettydoc::html_pretty:
+    highlight: github
+    toc: true
+    theme: cayman
+---
+
+**Documentation**: https://cran.r-project.org/web/packages/rio/vignettes/rio.html
+
+## Install package 
+```{r warning = F, message = F}
+# Clear environment
+rm(list=ls())
+
+# Install packages
+if (!("rio" %in% installed.packages())) {
+  install.packages("rio")
+}
+
+# Load packages
+library(rio)
+library(tidyverse) # used only for forward-pipe operator
+library(kableExtra) # just for table formatting
+
+# Define path
+data_in <- paste0(getwd(), "/input")
+data_out <- paste0(getwd(), "/output")
+
+```
+
+## Import and export files with different extensions
+
+### XLSX
+```{r}
+# Import from xlsx
+iris_xlsx <- import(file = paste0(data_in, "/iris.xlsx"))
+kable(head(iris_xlsx)) %>%
+  kable_styling(full_width = F)
+
+# Export subset to xlsx
+virginica <- subset(iris_xlsx, Species == "virginica")
+export(virginica, file = paste0(data_out, "/virginica.xlsx"))
+
+# Or export multiple datasets
+export(list(virginica =subset(iris_xlsx, Species == "virginica"), 
+            setosa =subset(iris_xlsx, Species == "setosa")), paste0(data_out,"/iris_xlsx_multi.xlsx"))
+
+# Remove datasets
+rm(virginica)
+```
+
+
+### SAV 
+With 'tidyverse' ('dplyr') package we can also add the export() to a pipe operator
+```{r}
+# Import from sav file
+iris_sav <- import(file = paste0(data_in, "/iris.sav"))
+kable(head(iris_sav)) %>%
+  kable_styling(full_width = F)
+
+# export to sav file with pipline
+iris_sav %>%
+  filter(Species == 1) %>%
+  export(paste0(data_out, "/virginica.sav"))
+
+```
+
+### DTA 
+```{r}
+# Import from dta file
+iris_dta <- import(file = paste0(data_in, "/iris.dta"))
+kable(head(iris_dta)) %>%
+  kable_styling(full_width = F)
+
+# Export to dta file
+virginica <- subset(iris_dta, Species == "virginica")
+export(virginica, file = paste0(data_out, "/virginica.dta"))
+
+# Remove datasets
+rm(virginica)
+```
+
+### JSON
+```{r, warning = F, message = F}
+# Import JSON file
+iris_json <- import(file = paste0(data_in, "/iris.json"))
+kable(head(iris_json)) %>%
+  kable_styling(full_width = F)
+
+# Export to JSON file
+virginica <- subset(iris_json, Species == "virginica")
+export(virginica, file = paste0(data_out, "/virginica.json"))
+
+# Remove datasets
+rm(virginica)
+```
+
+ 
+## Convert datasets
+
+### XLSX to SAV
+```{r}
+# Convert xlsx to sav
+convert(paste0(data_in, "/iris.xlsx"), paste0(data_out, "/iris_converted.sav"))
+
+# Check dataset
+iris_converted <- import(paste0(data_out, "/iris_converted.sav"))
+kable(head(iris_converted)) %>%
+  kable_styling(full_width = F)
+
+```
+
+### XLSX to JSON
+```{r}
+# Convert xlsx to JSON
+convert(paste0(data_in, "/iris.xlsx"), paste0(data_out, "/iris_converted.json"))
+
+# Check dataset
+iris_json_converted <- import(paste0(data_out, "/iris_converted.json"))
+kable(head(iris_json_converted)) %>%
+  kable_styling(full_width = F)
+```
+
+## Compare datasets
+```{r}
+all.equal(iris_xlsx, iris_json, check.attributes = FALSE)
+```
+
